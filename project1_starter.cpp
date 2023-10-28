@@ -11,7 +11,7 @@
 
 
 // Function to find available meeting times
-Function findAvailableMeetingTimes(employees, duration):
+Function matchingGroupSched(employees, duration):
     common_working_start = Maximum of working start times of all employees
     common_working_end = Minimum of working end times of all employees
     available_slots = List containing a single pair (common_working_start, common_working_end)
@@ -76,7 +76,7 @@ string minutesToTime(int minutes) {
 }
 
 
-vector<pair<string, string>> findAvailableMeetingTimes(const vector<Employee>& employees, int duration) {
+vector<pair<string, string>> matchingGroupSched(const vector<Employee>& employees, int duration) {
     //Get the best starttime sharred between the employees
     int start_time = max(stringToMinutes(employees[0].working_period.first), stringToMinutes(employees[1].working_period.first));
     int end_time = min(stringToMinutes(employees[0].working_period.second), stringToMinutes(employees[1].working_period.second));
@@ -135,7 +135,7 @@ int main() {
     vector<Employee> employees = {person1, person2};
 
     int duration = 30;
-    vector<pair<string, string>> availableMeetingTimes = findAvailableMeetingTimes(employees, duration);
+    vector<pair<string, string>> availableMeetingTimes = matchingGroupSched(employees, duration);
 
     // Output the available meeting times
     for (const pair<string, string>& slot : availableMeetingTimes) {
