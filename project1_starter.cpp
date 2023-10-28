@@ -76,13 +76,13 @@ string minutesToTime(int minutes) {
 }
 
 
-vector<pair<string, string>> findAvailableMeetingTimes(const std::vector<Employee>& employees, int duration) {
+vector<pair<string, string>> findAvailableMeetingTimes(const vector<Employee>& employees, int duration) {
     //Get the best starttime sharred between the employees
     int start_time = max(stringToMinutes(employees[0].working_period.first), stringToMinutes(employees[1].working_period.first));
     int end_time = min(stringToMinutes(employees[0].working_period.second), stringToMinutes(employees[1].working_period.second));
 
     // set available slots as start and end time
-    vector<std::pair<std::string, std::string>> availableSlots;
+    vector<pair<string, string>> availableSlots;
     availableSlots.push_back({minutesToTime(start_time), minutesToTime(end_time)});
 
     // Iterate over the schedules and remove busy slots
@@ -92,7 +92,7 @@ vector<pair<string, string>> findAvailableMeetingTimes(const std::vector<Employe
             int busy_end = stringToMinutes(busySlot.second);
             vector<pair<string, string>> updatedAvailableSlots;
 
-            for (const std::pair<std::string, std::string>& availableSlot : availableSlots) {
+            for (const pair<string, string>& availableSlot : availableSlots) {
                 int available_start = stringToMinutes(availableSlot.first);
                 int available_end = stringToMinutes(availableSlot.second);
 
@@ -112,8 +112,8 @@ vector<pair<string, string>> findAvailableMeetingTimes(const std::vector<Employe
     }
 
     // Filter available slots that are at least 'duration' long
-    std::vector<std::pair<std::string, std::string>> resultSlots;
-    for (const std::pair<std::string, std::string>& slot : availableSlots) {
+    vector<pair<string, string>> resultSlots;
+    for (const pair<string, string>& slot : availableSlots) {
         int slot_start = stringToMinutes(slot.first);
         int slot_end = stringToMinutes(slot.second);
         if (slot_end - slot_start >= duration) {
@@ -132,14 +132,14 @@ int main() {
     person2.schedule = {{"9:00", "10:30"}, {"12:20", "13:30"}, {"14:00", "15:00"}, {"16:00", "17:00"}};
     person2.working_period = {"9:00", "18:30"};
 
-    std::vector<Employee> employees = {person1, person2};
+    vector<Employee> employees = {person1, person2};
 
     int duration = 30;
-    std::vector<std::pair<std::string, std::string>> availableMeetingTimes = findAvailableMeetingTimes(employees, duration);
+    vector<pair<string, string>> availableMeetingTimes = findAvailableMeetingTimes(employees, duration);
 
     // Output the available meeting times
-    for (const std::pair<std::string, std::string>& slot : availableMeetingTimes) {
-        std::cout << "[" << slot.first << ", " << slot.second << "]" << std::endl;
+    for (const pair<string, string>& slot : availableMeetingTimes) {
+        cout << "[" << slot.first << ", " << slot.second << "]" << endl;
     }
 
     return 0;
