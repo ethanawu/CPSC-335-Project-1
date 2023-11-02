@@ -1,5 +1,5 @@
 # CPSC-335-Project-1
-#Team Members
+
 Ethan Wu
 ewu@csu.fullerton.edu 
 
