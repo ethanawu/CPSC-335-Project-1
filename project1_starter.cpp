@@ -12,8 +12,8 @@
 
 // Function to find available meeting times
 Function matchingGroupSched(employees, duration):
-    common_working_start = Maximum of working start times of all employees
-    common_working_end = Minimum of working end times of all employees
+    Iterate over all employees to find the latest start time and the earliest end time
+    
     available_slots = List containing a single pair (common_working_start, common_working_end)
 
     For each employee in employees:
@@ -43,32 +43,30 @@ Function matchingGroupSched(employees, duration):
         slot_end = Convert slot.end_time to minutes
         If (slot_end - slot_start) >= duration:
             Add slot to result_slots
-
     Return result_slots
     output: set availableMeetingTime[]
 */
+
 
 using namespace std;
 #include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
-#include <set>
+#include <sstream>
+#include <fstream>
 
-//Structure of employees
 struct Employee {
     vector<pair<string, string>> schedule;
     pair<string, string> working_period;
 };
 
-// convert time string into integer
 int stringToMinutes(const string& timeString) {
     int hours, minutes;
     sscanf(timeString.c_str(), "%d:%d", &hours, &minutes);
     return hours * 60 + minutes;
 }
 
-//convert minutes back into time
 string minutesToTime(int minutes) {
     int hours = minutes / 60;
     int mins = minutes % 60;
@@ -77,21 +75,26 @@ string minutesToTime(int minutes) {
 
 
 vector<pair<string, string>> matchingGroupSched(const vector<Employee>& employees, int duration) {
-    //Get the best starttime sharred between the employees
-    int start_time = max(stringToMinutes(employees[0].working_period.first), stringToMinutes(employees[1].working_period.first));
-    int end_time = min(stringToMinutes(employees[0].working_period.second), stringToMinutes(employees[1].working_period.second));
-
-    // set available slots as start and end time
+    
+    int start_time = 0;  
+    int end_time = 24 * 60;  
+    
+    
+    for (const Employee& employee : employees) {
+        start_time = max(start_time, stringToMinutes(employee.working_period.first));
+        end_time = min(end_time, stringToMinutes(employee.working_period.second));
+    }
+    
     vector<pair<string, string>> availableSlots;
     availableSlots.push_back({minutesToTime(start_time), minutesToTime(end_time)});
 
-    // Iterate over the schedules and remove busy slots
+    
     for (const Employee& employee : employees) {
         for (const pair<string, string>& busySlot : employee.schedule) {
             int busy_start = stringToMinutes(busySlot.first);
             int busy_end = stringToMinutes(busySlot.second);
             vector<pair<string, string>> updatedAvailableSlots;
-
+            
             for (const pair<string, string>& availableSlot : availableSlots) {
                 int available_start = stringToMinutes(availableSlot.first);
                 int available_end = stringToMinutes(availableSlot.second);
@@ -111,7 +114,6 @@ vector<pair<string, string>> matchingGroupSched(const vector<Employee>& employee
         }
     }
 
-    // Filter available slots that are at least 'duration' long
     vector<pair<string, string>> resultSlots;
     for (const pair<string, string>& slot : availableSlots) {
         int slot_start = stringToMinutes(slot.first);
@@ -125,22 +127,43 @@ vector<pair<string, string>> matchingGroupSched(const vector<Employee>& employee
 }
 
 int main() {
-    Employee person1;
-    Employee person2;
-    person1.schedule = {{"7:00", "8:30"}, {"12:00", "13:00"}, {"16:00", "18:00"}};
-    person1.working_period = {"9:00", "19:00"};
-    person2.schedule = {{"9:00", "10:30"}, {"12:20", "13:30"}, {"14:00", "15:00"}, {"16:00", "17:00"}};
-    person2.working_period = {"9:00", "18:30"};
+    ifstream inputFile("input.txt");
+    ofstream outputFile("output.txt");
 
-    vector<Employee> employees = {person1, person2};
+    if (!inputFile.is_open()) {
+        cerr << "Failed to open input.txt" << endl;
+        return 1;
+    }
 
-    int duration = 30;
+    int numEmployees;
+    inputFile >> numEmployees;
+    vector<Employee> employees(numEmployees);
+
+    for (int i = 0; i < numEmployees; i++) {
+        int numSlots;
+        inputFile >> numSlots;
+        for (int j = 0; j < numSlots; j++) {
+            string start, end;
+            inputFile >> start >> end;
+            employees[i].schedule.push_back({start, end});
+        }
+        string workingStart, workingEnd;
+        inputFile >> workingStart >> workingEnd;
+        employees[i].working_period = {workingStart, workingEnd};
+    }
+
+    int duration;
+    inputFile >> duration;
+
     vector<pair<string, string>> availableMeetingTimes = matchingGroupSched(employees, duration);
 
-    // Output the available meeting times
+    // Output the available meeting times to output.txt
     for (const pair<string, string>& slot : availableMeetingTimes) {
-        cout << "[" << slot.first << ", " << slot.second << "]" << endl;
+        outputFile << "[" << slot.first << ", " << slot.second << "]" << endl;
     }
+
+    inputFile.close();
+    outputFile.close();
 
     return 0;
 }
