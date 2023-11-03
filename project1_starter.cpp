@@ -54,6 +54,7 @@ using namespace std;
 #include <string>
 #include <algorithm>
 #include <set>
+#include <fstream>
 
 //Structure of employees
 struct Employee {
@@ -125,22 +126,43 @@ vector<pair<string, string>> matchingGroupSched(const vector<Employee>& employee
 }
 
 int main() {
-    Employee person1;
-    Employee person2;
-    person1.schedule = {{"7:00", "8:30"}, {"12:00", "13:00"}, {"16:00", "18:00"}};
-    person1.working_period = {"9:00", "19:00"};
-    person2.schedule = {{"9:00", "10:30"}, {"12:20", "13:30"}, {"14:00", "15:00"}, {"16:00", "17:00"}};
-    person2.working_period = {"9:00", "18:30"};
+    ifstream inputFile("input.txt");
+    ofstream outputFile("output.txt");
 
-    vector<Employee> employees = {person1, person2};
+    if (!inputFile.is_open()) {
+        cerr << "Failed to open input.txt" << endl;
+        return 1;
+    }
 
-    int duration = 30;
+    int numEmployees;
+    inputFile >> numEmployees;
+    vector<Employee> employees(numEmployees);
+
+    for (int i = 0; i < numEmployees; i++) {
+        int numSlots;
+        inputFile >> numSlots;
+        for (int j = 0; j < numSlots; j++) {
+            string start, end;
+            inputFile >> start >> end;
+            employees[i].schedule.push_back({start, end});
+        }
+        string workingStart, workingEnd;
+        inputFile >> workingStart >> workingEnd;
+        employees[i].working_period = {workingStart, workingEnd};
+    }
+
+    int duration;
+    inputFile >> duration;
+
     vector<pair<string, string>> availableMeetingTimes = matchingGroupSched(employees, duration);
 
-    // Output the available meeting times
+    // Output the available meeting times to output.txt
     for (const pair<string, string>& slot : availableMeetingTimes) {
-        cout << "[" << slot.first << ", " << slot.second << "]" << endl;
+        outputFile << "[" << slot.first << ", " << slot.second << "]" << endl;
     }
+
+    inputFile.close();
+    outputFile.close();
 
     return 0;
 }
